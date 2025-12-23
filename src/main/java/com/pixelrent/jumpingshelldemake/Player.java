@@ -8,17 +8,20 @@ import javax.imageio.ImageIO;
 
 public class Player {
     private double x, y;
-    // Variabile noi pentru a ține minte poziția de start
     private double spawnX, spawnY; 
     
     private double velocityX, velocityY;
     private boolean onGround;
     
-    // --- SPRITES ---
+    // --- SPRITES & STATE ---
     private Image spriteIdle;
     private Image spriteLeft;
     private Image spriteRight;
     private boolean facingRight = true; 
+    
+    // Variabila noua: ne spune daca jucatorul APASA tastele de miscare
+    // Indiferent daca zidul il blocheaza sau nu.
+    private boolean isWalking = false;
 
     private double gravity = 0.5; 
     private double moveSpeed = 5.0;
@@ -35,7 +38,6 @@ public class Player {
         this.x = startX;
         this.y = startY;
         
-        // Initializam spawn point-ul
         this.spawnX = startX;
         this.spawnY = startY;
         
@@ -57,12 +59,8 @@ public class Player {
     public void setPosition(double newX, double newY) {
         this.x = newX;
         this.y = newY;
-        
-        // IMPORTANT: Când jocul (GamePanel) ne așază pe hartă la început,
-        // actualizăm și punctul de spawn. Astfel, butonul R va ști unde să ne întoarcă.
         this.spawnX = newX;
         this.spawnY = newY;
-        
         this.velocityX = 0;
         this.velocityY = 0;
     }
@@ -86,7 +84,7 @@ public class Player {
 
             if (isSolid(tileRight, tileTop, levelData) || isSolid(tileRight, tileBottom, levelData)) {
                 x = (tileRight * TILE_SIZE) - WIDTH;
-                velocityX = 0; 
+                velocityX = 0; // Fizic ne oprim (fara jitter)
             }
         } else if (velocityX < 0) { 
             int tileLeft = (int) x / TILE_SIZE;
@@ -95,7 +93,7 @@ public class Player {
 
             if (isSolid(tileLeft, tileTop, levelData) || isSolid(tileLeft, tileBottom, levelData)) {
                 x = (tileLeft * TILE_SIZE) + TILE_SIZE;
-                velocityX = 0; 
+                velocityX = 0; // Fizic ne oprim
             }
         }
     }
@@ -134,7 +132,9 @@ public class Player {
     public void draw(Graphics g) {
         Image spriteToDraw;
 
-        if (Math.abs(velocityX) > 0.1) {
+        // MODIFICARE: Verificam intentia de miscare (isWalking), nu viteza fizica.
+        // Astfel, chiar daca viteza e 0 (la zid), sprite-ul ramane "Left" sau "Right".
+        if (isWalking) {
             if (facingRight) {
                 spriteToDraw = spriteRight;
             } else {
@@ -151,15 +151,23 @@ public class Player {
         }
     }
 
+    // --- INPUT METHODS ---
     public void goLeft() { 
         velocityX = -moveSpeed;
-        facingRight = false; 
+        facingRight = false;
+        isWalking = true; // Marcam ca jucatorul vrea sa mearga
     }
+    
     public void goRight() { 
         velocityX = moveSpeed;
         facingRight = true; 
+        isWalking = true; // Marcam ca jucatorul vrea sa mearga
     }
-    public void standStill() { velocityX = 0; }
+    
+    public void standStill() { 
+        velocityX = 0;
+        isWalking = false; // Jucatorul nu mai apasa taste de miscare
+    }
 
     public void doJump() {
         if (coyoteTimer > 0) {
@@ -170,12 +178,11 @@ public class Player {
     }
 
     public void respawn() {
-        // AICI ESTE FIX-UL:
-        // Resetăm poziția la coordonatele de spawn memorate
         this.x = spawnX;
         this.y = spawnY;
         this.velocityX = 0;
         this.velocityY = 0;
+        this.isWalking = false; // Resetam si starea de mers
     }
 
     public double getX() { return x; }

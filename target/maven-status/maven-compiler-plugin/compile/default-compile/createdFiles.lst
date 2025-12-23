@@ -1,2 +1,10 @@
-com\pixelrent\jumpingshelldemake\JumpingShellDemake$GamePanel.class
+com\pixelrent\jumpingshelldemake\ActionMoveLeft.class
+com\pixelrent\jumpingshelldemake\ActionStop.class
+com\pixelrent\jumpingshelldemake\Player.class
+com\pixelrent\jumpingshelldemake\ActionMoveRight.class
+com\pixelrent\jumpingshelldemake\GamePanel.class
 com\pixelrent\jumpingshelldemake\JumpingShellDemake.class
+com\pixelrent\jumpingshelldemake\InputController.class
+com\pixelrent\jumpingshelldemake\PlayerAction.class
+com\pixelrent\jumpingshelldemake\ActionJump.class
+com\pixelrent\jumpingshelldemake\ActionReload.class
